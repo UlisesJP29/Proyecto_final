@@ -1,0 +1,2 @@
+#ignora los archivos csv del proyecto
+*.csv
