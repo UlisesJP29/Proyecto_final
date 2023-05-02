@@ -1,30 +1,27 @@
+from genericpath import exists
 import requests
 from bs4 import BeautifulSoup
 import pandas  as pd
 import numpy as np
+import sys
+
 
 #--------primero vamos a seleccionar la URL del alumno
 #URL = "https://portafoliosfit.um.edu.mx/kimberlygarcia/relaciones-interpersonales/"
-URL = "https://portafoliosfit.um.edu.mx/geovannidzul/integracion/"
+#URL = "https://portafoliosfit.um.edu.mx/geovannidzul/integracion/"
+#URL = "https://portafoliosfit.um.edu.mx/miguelvarela/integracion/"
+URL = "https://portafoliosfit.um.edu.mx/celinediaz/integracion-2/"
+URL = "https://portafoliosfit.um.edu.mx/javierramon/1-semestre/"
+
 page = requests.get(URL)
 
 #-------- segundo  Ahora vamos a limpiar los datos extraifos con beautifullsoup
 soup = BeautifulSoup(page.content, "html.parser")
 #print(soup.prettify())
 
-ls = []
-find_p = soup.findAll('p')#se crea una lista para todos los datos de una etiqueta "p"
-for list in find_p: #se quiere imprimir solamente los datos de find_p
-    texto_con_espacio_sin_romper = list.text
-    texto_con_espacio_normal = texto_con_espacio_sin_romper.replace('\xa0', ' ')
-    if texto_con_espacio_sin_romper is None or list == ' ' or list == '\xa0':
-        break
-    else: 
-      # print(texto_con_espacio_normal)
-       ls.append(texto_con_espacio_normal)
-#print(ls)# imprimer la lista de todos los parrafos de la pagina web
-#find_p = list(filter(bool,find_p))
-#print(find_p.text)
+
+find_p = soup.findAll('p')# se crea una lista para todos los datos de una etiqueta "p"
+
 
 p_texts = [p.text for p in find_p] # creanmos una lista con la datos extraidos de find_p (solo los textos)
 
@@ -73,4 +70,50 @@ def get_polarity(text):
 filtered_df['polarity'] = filtered_df['clean_text'].apply(get_polarity)
 print(filtered_df['polarity'].head(3))
 
+neutros = []
+positivos = []
+negativos = []
+def x_range(x):
+  if x > 0:
+    positivos.append(1)
+    return 1
+  elif x == 0:
+    neutros.append(1)
+    return 0
+  else:
+    negativos.append(1)
+    return -1
+  
+filtered_df['result'] = filtered_df['polarity'].apply(x_range)
 filtered_df.to_csv('comentarios2.csv',index=False,encoding='cp1252')# guarda en un csv todos los comentarios
+
+#observar resultados 
+print(filtered_df['result'].value_counts())
+print(len(neutros))
+#graficar 
+import matplotlib.pyplot as plt
+
+if neutros and negativos and positivos:
+  labels = 'Positivo', 'Negativo', 'Neutro'
+elif positivos and neutros:
+  labels = 'Positivo' ,'Neutros'
+elif positivos and negativos:
+  labels = 'Positivo' ,'Negativo'
+elif negativos and neutros:
+  labels = 'Negativos' ,'Neutros' 
+elif negativos:
+  labels = 'Negativos'
+elif positivos:
+    labels = 'Posativos'
+    sys.exit()
+else: labels = 'Neutros' 
+
+colors = ['#29A0B1','#167D7F','#98D7C2']
+plt.pie(filtered_df['result'].value_counts(), labels = labels, colors = colors,
+        autopct = '%1.1f%%', shadow = True, startangle = 90)
+plt.title('Analisis de comentarios', fontsize = 20)
+plt.axis('equal')
+plt.show()
+
+
+
