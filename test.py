@@ -11,7 +11,7 @@ import sys
 #URL = "https://portafoliosfit.um.edu.mx/geovannidzul/integracion/"
 #URL = "https://portafoliosfit.um.edu.mx/miguelvarela/integracion/"
 URL = "https://portafoliosfit.um.edu.mx/celinediaz/integracion-2/"
-URL = "https://portafoliosfit.um.edu.mx/javierramon/1-semestre/"
+#URL = "https://portafoliosfit.um.edu.mx/javierramon/1-semestre/"
 
 page = requests.get(URL)
 
@@ -103,11 +103,13 @@ elif negativos and neutros:
   labels = 'Negativos' ,'Neutros' 
 elif negativos:
   labels = 'Negativos'
+  sys.exit()
 elif positivos:
     labels = 'Posativos'
     sys.exit()
-else: labels = 'Neutros' 
-
+else: 
+  labels = 'Neutros' 
+  sys.exit()
 colors = ['#29A0B1','#167D7F','#98D7C2']
 plt.pie(filtered_df['result'].value_counts(), labels = labels, colors = colors,
         autopct = '%1.1f%%', shadow = True, startangle = 90)
