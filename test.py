@@ -10,44 +10,31 @@ import sys
 #URL = "https://portafoliosfit.um.edu.mx/kimberlygarcia/relaciones-interpersonales/"
 #URL = "https://portafoliosfit.um.edu.mx/geovannidzul/integracion/"
 #URL = "https://portafoliosfit.um.edu.mx/miguelvarela/integracion/"
-URL = "https://portafoliosfit.um.edu.mx/celinediaz/integracion-2/"
+#URL = "https://portafoliosfit.um.edu.mx/celinediaz/integracion-2/"
 #URL = "https://portafoliosfit.um.edu.mx/javierramon/1-semestre/"
-
-page = requests.get(URL)
-
+page = requests.get(URL)# Se descarga toda la infromación de la pagina que deseamos analizar
 #-------- segundo  Ahora vamos a limpiar los datos extraifos con beautifullsoup
 soup = BeautifulSoup(page.content, "html.parser")
-#print(soup.prettify())
-
-
 find_p = soup.findAll('p')# se crea una lista para todos los datos de una etiqueta "p"
-
-
 p_texts = [p.text for p in find_p] # creanmos una lista con la datos extraidos de find_p (solo los textos)
-
 df = pd.DataFrame(p_texts, columns=['Text']) # creamos una tabla con los comentarios
 df = df.replace('\xa0', ' ', regex=True)
-#print(df)
 # Reemplazar los espacios vacíos con valores nulos (NaN) en el DataFrame
 df = df.replace(r'^\s*$', np.nan, regex=True)
 # Eliminar las filas que tienen valores nulos en cualquier columna
 df = df.dropna()
-print(df)
 # Iterar en el DataFrame y buscar una cadena específica en la columna "A"
 mask = df['Text'].str.contains('Reflex')
 # Filter the dataframe based on the mask
 filtered_df = df[mask]
 filtered_df.dropna()
 print(filtered_df)
-
 filtered_df.to_csv('comentarios.csv',index=False,encoding='cp1252')# guarda en un csv todos los comentarios
 
-#print(df.head(10))
+
 #---------tercero vamos a revisar como analizar el sentimiento de los comentarios guardados
 from textblob import TextBlob
-import csv, re, time, string
-from googletrans import Translator
-
+import  re, time
 def clean_text(text):
   text = re.sub(r'^RT[\s]+', '', text)
   text = re.sub(r'https?:\/\/.*[\r\n]*', '', text)
